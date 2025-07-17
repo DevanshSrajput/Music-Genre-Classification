@@ -1,0 +1,8 @@
+
+/__pycache__
+/.git
+/.vscode
+/data
+/results/confusion_matrix.png
+/results/training_history.png
+/venv
