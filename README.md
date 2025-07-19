@@ -4,6 +4,11 @@ _Because who needs Shazam when you have this?_
 
 ---
 
+## 📸 Screenshots
+> Will be uploaded soon enough
+
+---
+
 ## 🤔 What is This?
 
 Welcome to **Music Genre Classifier Pro** – the AI-powered app that bravely attempts to guess your music genre, even if you upload your grandma’s humming or a 10-hour loop of elevator music. Built for musicians, data nerds, and anyone who’s ever wondered, “Is this really jazz?”
@@ -69,32 +74,38 @@ Music-Genre-Classification/
 ## 🏃 How to Run
 
 1. **Clone this repo**  
-   `git clone https://github.com/DevanshSrajput/music-genre-classification.git`
+   ```
+   git clone https://github.com/DevanshSrajput/music-genre-classification.git`
+   ```
 
 2. **Install dependencies**  
-   `pip install -r requirements.txt`
+   ```
+   pip install -r requirements.txt`
+   ```
 
 3. **(Optional) Train the model**  
-   `python train_model.py`
+   ```
+   python train_model.py`
+   ```
 
 4. **Launch the app**  
-   `streamlit run app_enhanced.py`
+   ```
+   streamlit run app_enhanced.py
+   ```
 
-5. **Upload your audio file**
+5. **Quick Start**
+   ```
+   python run quick_start.py
+   ```
+
+6. **Upload your audio file**
 
    - Supported: `.wav`, `.mp3`, `.flac`, `.ogg`
    - Max size: 10MB (because we care about your bandwidth)
 
-6. **Marvel at the predictions**
+7. **Marvel at the predictions**
    - Or question your life choices if it says “Pop” for your death metal track.
 
----
-
-## 📸 Screenshots
-
-|              Prediction Tab               |             Training Tab              |             Dataset Tab             |
-| :---------------------------------------: | :-----------------------------------: | :---------------------------------: |
-| ![Prediction](screenshots/prediction.png) | ![Training](screenshots/training.png) | ![Dataset](screenshots/dataset.png) |
 
 ---
 
