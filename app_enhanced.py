@@ -246,6 +246,10 @@ class ImprovedGenreClassifier(GenreClassifier):
         from tensorflow.keras.utils import to_categorical
         import gc
         
+        # Build the model if not already built
+        if self.model is None:
+            self.build_improved_model()
+        
         # Custom callback for enhanced real-time progress tracking
         class StreamlitProgressCallback(Callback):
             def __init__(self, total_epochs):
@@ -255,6 +259,7 @@ class ImprovedGenreClassifier(GenreClassifier):
                 self.best_train_accuracy = 0.0
                 self.improvement_count = 0
                 self.epochs_since_improvement = 0
+                self.epoch_history = []
                 
             def on_epoch_begin(self, epoch, logs=None):
                 # Update status at the beginning of each epoch
@@ -291,7 +296,20 @@ class ImprovedGenreClassifier(GenreClassifier):
                 # Calculate progress percentage
                 progress_pct = ((epoch + 1) / self.total_epochs) * 100
                 
-                # Update progress in session state with detailed information
+                # Store only recent epoch history (last 50 epochs)
+                epoch_data = {
+                    'epoch': epoch + 1,
+                    'train_acc': train_acc_pct,
+                    'val_acc': val_acc_pct,
+                    'train_loss': float(train_loss),
+                    'val_loss': float(val_loss)
+                }
+                
+                self.epoch_history.append(epoch_data)
+                if len(self.epoch_history) > 50:  # Keep only last 50 epochs
+                    self.epoch_history.pop(0)
+                
+                # Update progress in session state with optimized information
                 if 'training_progress' in st.session_state:
                     st.session_state.training_progress.update({
                         'current_epoch': epoch + 1,
@@ -308,18 +326,36 @@ class ImprovedGenreClassifier(GenreClassifier):
                         'epochs_since_improvement': self.epochs_since_improvement,
                         'progress_percentage': progress_pct,
                         'improvement_indicator': improvement_indicator,
-                        'status': f'✅ Epoch {epoch + 1}/{self.total_epochs} Complete | Train: {train_acc_pct:.2f}% | Val: {val_acc_pct:.2f}% | {improvement_indicator}'
+                        'status': f'✅ Epoch {epoch + 1}/{self.total_epochs} Complete | Train: {train_acc_pct:.2f}% | Val: {val_acc_pct:.2f}% | {improvement_indicator}',
+                        'recent_history': self.epoch_history[-10:]  # Only last 10 epochs
                     })
                 
-                # Force garbage collection periodically
-                if (epoch + 1) % 10 == 0:
+                # Force garbage collection and memory cleanup every 25 epochs
+                if (epoch + 1) % 25 == 0:
                     gc.collect()
+                    # Clear unnecessary data from session state
+                    if 'training_progress' in st.session_state:
+                        # Keep only essential data for long training sessions
+                        essential_keys = ['current_epoch', 'total_epochs', 'current_accuracy_pct', 
+                                        'val_accuracy_pct', 'best_val_accuracy', 'best_train_accuracy',
+                                        'progress_percentage', 'status', 'recent_history']
+                        current_data = st.session_state.training_progress
+                        st.session_state.training_progress = {k: v for k, v in current_data.items() if k in essential_keys}
+                
+                # Early stopping for very long training sessions
+                if epoch > 100 and self.epochs_since_improvement > 50:
+                    print(f"⏹️ Stopping training early at epoch {epoch + 1} due to no improvement in 50 epochs")
+                    self.model.stop_training = True
                     
             def on_batch_end(self, batch, logs=None):
                 # Update status during batch processing for real-time feedback
                 if batch % 10 == 0 and 'training_progress' in st.session_state:
                     current_epoch = st.session_state.training_progress.get('current_epoch', 0)
                     st.session_state.training_progress['status'] = f'🔄 Epoch {current_epoch + 1}/{self.total_epochs} - Processing batch {batch + 1}...'
+        
+        # Convert labels to categorical first
+        y_train_cat = to_categorical(y_train, num_classes=self.num_classes)
+        y_val_cat = to_categorical(y_val, num_classes=self.num_classes)
         
         # Data augmentation for better generalization
         from sklearn.utils import shuffle
@@ -332,9 +368,6 @@ class ImprovedGenreClassifier(GenreClassifier):
         
         # Shuffle the combined data
         X_train_combined, y_train_combined = shuffle(X_train_combined, y_train_combined, random_state=42)
-        
-        # Convert labels to categorical
-        y_val_cat = to_categorical(y_val, num_classes=self.num_classes)
         
         # Setup callbacks
         callbacks = [StreamlitProgressCallback(epochs)]
@@ -356,13 +389,23 @@ class ImprovedGenreClassifier(GenreClassifier):
             verbose=0
         ))
         
-        # Early stopping if requested
+        # Early stopping if requested - with optimized settings for long training
         if use_early_stopping:
             callbacks.append(EarlyStopping(
                 monitor='val_loss',
-                patience=early_stopping_patience,
+                patience=min(early_stopping_patience, 25),  # Cap patience at 25 for long training
                 restore_best_weights=True,
-                verbose=0
+                verbose=0,
+                min_delta=0.001  # Minimum change to qualify as improvement
+            ))
+        else:
+            # Add automatic early stopping for very long training sessions
+            callbacks.append(EarlyStopping(
+                monitor='val_loss',
+                patience=50,  # Stop if no improvement for 50 epochs
+                restore_best_weights=True,
+                verbose=0,
+                min_delta=0.0001
             ))
         
         # Train the model with optimized parameters and augmented data
@@ -372,9 +415,8 @@ class ImprovedGenreClassifier(GenreClassifier):
             epochs=epochs,
             validation_data=(X_val, y_val_cat),
             callbacks=callbacks,
-            verbose=0,
-            shuffle=True,
-            class_weight='balanced'  # Handle class imbalance
+            verbose='auto',
+            shuffle=True
         )
         
         return history
@@ -1221,6 +1263,30 @@ def about_tab():
     - Classical and jazz music typically classify more accurately
     - Pop and rock genres might have more overlap
     """)
+
+def handle_stuck_training():
+    """Handle cases where training gets stuck."""
+    if 'training_progress' in st.session_state:
+        progress = st.session_state.training_progress
+        current_epoch = progress.get('current_epoch', 0)
+        total_epochs = progress.get('total_epochs', 0)
+        epochs_since_improvement = progress.get('epochs_since_improvement', 0)
+        
+        # Check if training is stuck
+        if current_epoch > 100 and epochs_since_improvement > 30:
+            st.warning("⚠️ Training seems to be stuck with no improvement. Consider stopping training.")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("🛑 Stop Training", type="primary"):
+                    st.session_state.training_in_progress = False
+                    st.session_state.training_stopped = True
+                    st.success("✅ Training stopped by user.")
+                    st.rerun()
+            
+            with col2:
+                if st.button("🔄 Continue Training"):
+                    st.info("▶️ Training will continue...")
 
 def main():
     # Header

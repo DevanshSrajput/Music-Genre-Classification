@@ -12,7 +12,7 @@ SAMPLE_RATE = 22050
 DURATION = 30  # seconds
 N_MFCC = 13
 N_CHROMA = 12
-N_SPECTRAL_CONTRAST = 7
+N_SPECTRAL_CONTRAST = 5  # 4 bands = 5 features in librosa
 
 # Model parameters
 MODEL_PATH = "models"

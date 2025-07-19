@@ -53,7 +53,7 @@ class GenrePredictor:
 def main():
     parser = argparse.ArgumentParser(description='Predict music genre from audio file')
     parser.add_argument('audio_file', help='Path to audio file')
-    parser.add_argument('--show-top', type=int, default=3, help='Number of top predictions to show')
+    parser.add_argument('--show-top', type=int, default=5, help='Number of top predictions to show')
     
     args = parser.parse_args()
     
@@ -75,9 +75,13 @@ def main():
         print(f"\n🎯 Predicted Genre: {result['predicted_genre'].title()}")
         print(f"🎲 Confidence: {result['confidence']:.2%}")
         
-        print(f"\n🏆 Top {args.show_top} Predictions:")
+        print(f"\n🏆 Top {args.show_top} Predictions (Sorted by Score):")
         for i, (genre, prob) in enumerate(result['top_predictions'][:args.show_top], 1):
-            print(f"  {i}. {genre.title()}: {prob:.2%}")
+            print(f"  {i}. {genre.title()}: {prob:.4f} ({prob*100:.2f}%)")
+            
+        print(f"\n📊 All Genre Probabilities (Sorted):")
+        for genre, prob in result['all_probabilities'].items():
+            print(f"  {genre.title()}: {prob:.4f} ({prob*100:.2f}%)")
     else:
         print("❌ Failed to analyze the audio file")
 

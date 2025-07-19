@@ -202,16 +202,26 @@ class GenreClassifier:
         predicted_genre = label_encoder.inverse_transform([predicted_class])[0]
         confidence = probabilities[predicted_class]
         
-        # Get top 3 predictions
-        top_indices = np.argsort(probabilities)[::-1][:3]
-        top_genres = [(label_encoder.inverse_transform([idx])[0], probabilities[idx]) 
+        # Get top 5 predictions (increased from 3) and sort by probability descending
+        top_indices = np.argsort(probabilities)[::-1][:5]  # Get top 5 instead of top 3
+        top_genres = [(label_encoder.inverse_transform([idx])[0], float(probabilities[idx])) 
                      for idx in top_indices]
+        
+        # Double-check sorting - ensure they are actually sorted by probability
+        top_genres = sorted(top_genres, key=lambda x: x[1], reverse=True)
+        
+        # Create all probabilities dictionary sorted by probability
+        all_probs_sorted = dict(sorted(
+            zip(label_encoder.classes_, [float(p) for p in probabilities]),
+            key=lambda x: x[1], 
+            reverse=True
+        ))
         
         return {
             'predicted_genre': predicted_genre,
             'confidence': float(confidence),
             'top_predictions': top_genres,
-            'all_probabilities': dict(zip(label_encoder.classes_, probabilities))
+            'all_probabilities': all_probs_sorted
         }
     
     def load_model(self, model_path: str = TRAINED_MODEL_PATH):
