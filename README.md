@@ -5,7 +5,31 @@ _Because who needs Shazam when you have this?_
 ---
 
 ## 📸 Screenshots
-> Will be uploaded soon enough
+> Glimpses! So you know it actually works
+
+<div align="center">
+<table>
+<tr>
+<td align="center"><img src="Screenshots/Dashboard.png" width="300"><br><b>🏠 Home Dashboard</b></td>
+<td align="center"><img src="Screenshots/Training.png" width="300"><br><b>📤 Training Tab</b></td>
+<td align="center"><img src="Screenshots/Trained Results.png" width="300"><br><b>📤 Training Results</b></td>
+</tr>
+<tr>
+<td align="center"><img src="Screenshots/Trained Results-2.png" width="300"><br><b>📊 Trained Results</b></td>
+<td align="center"><img src="Screenshots/Trained Result-3.png" width="300"><br><b>💬 Trained Results</b></td>
+<td align="center"><img src="Screenshots/Dataset.png" width="300"><br><b>📤 Dataset</b></td>
+</tr>
+<tr>
+<td align="center"><img src="Screenshots/Dataset-2.png" width="300"><br><b>🤖 Dataset</b></td>
+<td align="center"><img src="Screenshots/Prediction.png" width="300"><br><b>📊 Prediction</b></td>
+<td align="center"><img src="Screenshots/Predict-2.png" width="300"><br><b>📤 Redicted Results</b></td>
+</tr>
+<tr>
+<td align="center"><img src="Screenshots/Predict-3.png" width="300"><br><b>⚙️ Predicted Results</b></td>
+<td align="center"><img src="Screenshots/About.png" width="300"><br><b>🌙 About</b></td>
+</tr>
+</table>
+</div>
 
 ---
 
