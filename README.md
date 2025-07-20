@@ -22,7 +22,7 @@ _Because who needs Shazam when you have this?_
 <tr>
 <td align="center"><img src="Screenshots/Dataset-2.png" width="300"><br><b>🤖 Dataset</b></td>
 <td align="center"><img src="Screenshots/Prediction.png" width="300"><br><b>📊 Prediction</b></td>
-<td align="center"><img src="Screenshots/Predict-2.png" width="300"><br><b>📤 Redicted Results</b></td>
+<td align="center"><img src="Screenshots/Predict-2.png" width="300"><br><b>📤 Predicted Results</b></td>
 </tr>
 <tr>
 <td align="center"><img src="Screenshots/Predict-3.png" width="300"><br><b>⚙️ Predicted Results</b></td>
